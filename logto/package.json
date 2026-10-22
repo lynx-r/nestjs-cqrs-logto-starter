@@ -1,0 +1,14 @@
+{
+  "name": "@shop/logto",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "dump": "zx scripts/logto.mjs dump",
+    "restore": "zx scripts/logto.mjs restore"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.32.1"
+}

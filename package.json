@@ -1,0 +1,19 @@
+{
+  "name": "nestjs-cqrs-logto-starter",
+  "license": "MIT",
+  "scripts": {
+    "dev": "pnpm --filter backend start:dev"
+  },
+  "pnpm": {
+    "supportedArchitectures": {
+      "os": [
+        "current",
+        "linux"
+      ],
+      "cpu": [
+        "current",
+        "x64"
+      ]
+    }
+  }
+}

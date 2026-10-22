@@ -1,0 +1,266 @@
+name: nestjs-cqrs-logto-starter
+
+services:
+  backend:
+    build:
+      context: ../backend/
+      dockerfile: Dockerfile.dev
+    container_name: nest-clean-core-dev-app
+    # command: sh -c "pnpm exec prisma generate && pnpm exec prisma migrate deploy && pnpm run start:dev:docker"
+    command: sh -c "pnpm run start:dev"
+    ports:
+      - "3006:3000"
+    depends_on:
+      database:
+        condition: service_healthy
+    env_file:
+      - ".env.docker.dev"
+
+  logto:
+    image: svhd/logto:latest
+    container_name: logto
+    restart: unless-stopped
+    env_file:
+      - ../logto/.env
+    entrypoint:
+      [
+        "sh",
+        "-c",
+        # WARN: the first run on an empty db
+        # "npx @logto/cli db seed -- --swe && npm start",
+        # the prod run
+        "npx @logto/cli db alteration deploy latest && npm start",
+      ]
+    ports:
+      - "3001:3001" # Endpoint для Nuxt/Nest
+      - "3002:3002" # Admin Console
+    # extra_hosts:
+    #   - "auth.vnutri-d3.shop:host-gateway"
+    #   - "auth-admin.vnutri-d3.shop:host-gateway"
+    volumes:
+      - ../logto/connectors:/etc/logto/packages/core/connectors
+      - ../caddy/ssl/localhost.test.pem:/etc/logto/ssl/localhost.test.pem
+      - ../caddy/ssl/localhost.test-key.pem:/etc/logto/ssl/localhost.test-key.pem
+    depends_on:
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M # Максимум, который может взять контейнер
+        reservations:
+          memory: 256M # Гарантированный объем при старте
+
+  database:
+    image: postgres:18-alpine
+    container_name: database
+    restart: always
+    env_file:
+      - ../database/.env
+      - ../logto/.env
+      - ../backend/.env
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ../database/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+      - ../database/backup/full_backup.sql:/backup/full_backup.sql
+      - ../logto/backup/logto_backup.dump:/backup/logto_backup.dump
+      - ../backend/backup/backend_backup.sql:/backup/backend_backup.sql
+      - pg_data:/var/lib/postgresql
+
+  pgadmin:
+    image: dpage/pgadmin4:9.8
+    container_name: pgadmin
+    ports:
+      - 5050:80
+    env_file:
+      - ../database/.env
+    configs:
+      - source: pgadmin-logto_pass
+        target: /var/lib/pgadmin/logto_pass
+        uid: "5050"
+        gid: "5050"
+        mode: 0600
+      - source: pgadmin-backend_pass
+        target: /var/lib/pgadmin/backend_pass
+        uid: "5050"
+        gid: "5050"
+        mode: 0600
+      - source: pgadmin-servers
+        target: /pgadmin4/servers.json
+        mode: 0444
+
+  redis:
+    image: redis:8
+    container_name: redis
+    restart: always
+    env_file:
+      - .env
+    # REDIS_PASSWORD берется из .env рядом с docker-compose.yml
+    command: [
+      "redis-server", 
+      "--requirepass", "${REDIS_PASSWORD}", 
+      "--maxmemory", "512mb", 
+      "--maxmemory-policy", "allkeys-lru"
+    ]
+    expose:
+      - "6379"
+    healthcheck:
+      test: ["CMD-SHELL", "[ $$(redis-cli -a $REDIS_PASSWORD ping) = 'PONG' ]"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    volumes:
+      - redis_data:/data
+    deploy:
+      resources:
+        limits:
+          memory: 512M # Максимум, который может взять контейнер
+        reservations:
+          memory: 256M # Гарантированный объем при старте
+
+  # --- Monitoring ---
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ../monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    extra_hosts:
+      - "host.docker.internal:host-gateway" # Дает контейнеру доступ к хосту Ubuntu
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M # Максимум, который может взять контейнер
+        reservations:
+          cpus: '0.15'
+          memory: 256M # Гарантированный объем при старте
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    env_file:
+      - ../monitoring/.env
+    expose:
+      - "3000" # Панель управления будет доступна тут
+    volumes:
+      - grafana_data:/var/lib/grafana
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M # Максимум, который может взять контейнер
+        reservations:
+          cpus: '0.15'
+          memory: 256M # Гарантированный объем при старте
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor-amd64:v0.51.0
+    container_name: cadvisor
+    # Добавляем привилегии для cgroups v2
+    privileged: true
+    devices:
+      - /dev/kmsg
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro     # Важно для Ubuntu 24.04
+      - /var/run/docker.sock:/var/run/docker.sock:ro # ВАЖНО: чтобы cAdvisor видел имена контейнеров
+    command:
+      # Флаги, заставляющие cAdvisor корректно парсить имена Docker контейнеров
+      - '-docker_only=true'
+      - '-disable_root_cgroup_stats=true'
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M # Максимум, который может взять контейнер
+        reservations:
+          cpus: '0.15'
+          memory: 256M # Гарантированный объем при старте
+
+  postgres-exporter-logto:
+    image: prometheuscommunity/postgres-exporter
+    container_name: postgres-exporter-logto
+    env_file:
+      - ../logto/.env
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M # Максимум, который может взять контейнер
+        reservations:
+          cpus: '0.15'
+          memory: 256M # Гарантированный объем при старте
+
+  redis-exporter:
+    image: oliver006/redis_exporter
+    container_name: redis-exporter
+    env_file:
+      - ../monitoring/.env
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M # Максимум, который может взять контейнер
+        reservations:
+          cpus: '0.15'
+          memory: 256M # Гарантированный объем при старте
+
+configs:
+  pgadmin-servers:
+    content: |
+      {
+        "Servers": {
+          "1": {
+            "Name": "Local Logto",
+            "Group": "Servers",
+            "Host": "database",
+            "Port": 5432,
+            "MaintenanceDB": "auth",
+            "Username": "logto",
+            "PassFile": "../../logto_pass"
+          },
+          "2": {
+            "Name": "Local Backend",
+            "Group": "Servers",
+            "Host": "database",
+            "Port": 5432,
+            "MaintenanceDB": "nestjs_cqrs_starter",
+            "Username": "backend",
+            "PassFile": "../../backend_pass"
+          }
+        }
+      }
+
+  pgadmin-logto_pass:
+    content: |
+      database:5432:*:logto:l0gt0
+
+  pgadmin-backend_pass:
+    content: |
+      database:5432:*:backend:b4ck3nd
+
+volumes:
+  redis_data:
+  pg_data:
+  prometheus_data:
+  grafana_data:
