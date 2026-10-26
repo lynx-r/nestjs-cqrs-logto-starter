@@ -1,0 +1,37 @@
+global:
+  scrape_interval: 15s # Как часто собирать метрики (по умолчанию 1 минута, 15с — оптимально)
+  evaluation_interval: 15s # Как часто проверять правила алертов (если они настроены)
+
+scrape_configs:
+  # 1. Метрики самого Prometheus (для контроля его здоровья)
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # 2. Метрики Docker-контейнеров (CPU, RAM, Сеть)
+  - job_name: "cadvisor"
+    static_configs:
+      - targets: ["cadvisor:8080"]
+
+  # 3. Метрики веб-сервера Caddy (Трафик, запросы, 404/500 ошибки)
+  - job_name: "caddy"
+    static_configs:
+      - targets: ["caddy:2019"]
+
+  # 4. Метрики базы данных PostgreSQL
+  - job_name: "postgres"
+    static_configs:
+      - targets:
+          - "postgres-exporter-logto:9187"
+          - "postgres-exporter-vendure:9187"
+          - "postgres-exporter-directus:9187"
+
+  # 5. Метрики кэша и очередей Redis
+  - job_name: "redis"
+    static_configs:
+      - targets: ["redis-exporter:9121"]
+
+  # CrowdSec
+  - job_name: "crowdsec"
+    static_configs:
+      - targets: ["host.docker.internal:6060"]

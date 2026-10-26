@@ -3,7 +3,7 @@ name: nestjs-cqrs-logto-starter
 services:
   backend:
     build:
-      context: ../backend/
+      context: ./apps/backend/
       dockerfile: Dockerfile.dev
     container_name: nest-clean-core-dev-app
     # command: sh -c "pnpm exec prisma generate && pnpm exec prisma migrate deploy && pnpm run start:dev:docker"
@@ -21,7 +21,7 @@ services:
     container_name: logto
     restart: unless-stopped
     env_file:
-      - ../logto/.env
+      - ./deploy/logto/.env
     entrypoint:
       [
         "sh",
@@ -38,9 +38,9 @@ services:
     #   - "auth.vnutri-d3.shop:host-gateway"
     #   - "auth-admin.vnutri-d3.shop:host-gateway"
     volumes:
-      - ../logto/connectors:/etc/logto/packages/core/connectors
-      - ../caddy/ssl/localhost.test.pem:/etc/logto/ssl/localhost.test.pem
-      - ../caddy/ssl/localhost.test-key.pem:/etc/logto/ssl/localhost.test-key.pem
+      - ./deploy/logto/connectors:/etc/logto/packages/core/connectors
+      - ./deploy/caddy/ssl/localhost.test.pem:/etc/logto/ssl/localhost.test.pem
+      - ./deploy/caddy/ssl/localhost.test-key.pem:/etc/logto/ssl/localhost.test-key.pem
     depends_on:
       database:
         condition: service_healthy
@@ -58,9 +58,9 @@ services:
     container_name: database
     restart: always
     env_file:
-      - ../database/.env
-      - ../logto/.env
-      - ../backend/.env
+      - ./deploy/database/.env
+      - ./deploy/logto/.env
+      - ./apps/backend/.env
     ports:
       - "5432:5432"
     healthcheck:
@@ -69,10 +69,10 @@ services:
       timeout: 5s
       retries: 5
     volumes:
-      - ../database/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
-      - ../database/backup/full_backup.sql:/backup/full_backup.sql
-      - ../logto/backup/logto_backup.dump:/backup/logto_backup.dump
-      - ../backend/backup/backend_backup.sql:/backup/backend_backup.sql
+      - ./deploy/database/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+      - ./deploy/database/backup/full_backup.sql:/backup/full_backup.sql
+      - ./deploy/logto/backup/logto_backup.sql:/backup/logto_backup.sql
+      - ./apps/backend/backup/backend_backup.sql:/backup/backend_backup.sql
       - pg_data:/var/lib/postgresql
 
   pgadmin:
@@ -81,7 +81,7 @@ services:
     ports:
       - 5050:80
     env_file:
-      - ../database/.env
+      - ./deploy/database/.env
     configs:
       - source: pgadmin-logto_pass
         target: /var/lib/pgadmin/logto_pass
@@ -102,7 +102,7 @@ services:
     container_name: redis
     restart: always
     env_file:
-      - .env
+      - ./deploy/redis/.env
     # REDIS_PASSWORD берется из .env рядом с docker-compose.yml
     command: [
       "redis-server", 
@@ -132,7 +132,7 @@ services:
     image: prom/prometheus:latest
     container_name: prometheus
     volumes:
-      - ../monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./deploy/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
@@ -152,7 +152,7 @@ services:
     image: grafana/grafana:latest
     container_name: grafana
     env_file:
-      - ../monitoring/.env
+      - ./deploy/monitoring/.env
     expose:
       - "3000" # Панель управления будет доступна тут
     volumes:
@@ -199,7 +199,7 @@ services:
     image: prometheuscommunity/postgres-exporter
     container_name: postgres-exporter-logto
     env_file:
-      - ../logto/.env
+      - ./deploy/logto/.env
     restart: unless-stopped
     deploy:
       resources:
@@ -214,7 +214,7 @@ services:
     image: oliver006/redis_exporter
     container_name: redis-exporter
     env_file:
-      - ../monitoring/.env
+      - ./deploy/monitoring/.env
     restart: unless-stopped
     deploy:
       resources:
