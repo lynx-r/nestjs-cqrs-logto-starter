@@ -1,17 +1,43 @@
 packages:
-  - "frontend"
-  - "backend"
-
-# TODO: why?
-injectWorkspacePackages: true
-autoInstallPeers: true
-# end
+  - "apps/*"
+  - "packages/*"
 
 strictPeerDependencies: true
 
 peerDependencyRules:
+  allowAny:
+    - "vue"
+    - "tsconfck>typescript"
+    - "@vue/tsconfig>typescript"
   allowedVersions:
-    "tsconfck>typescript": "6.0.3"
+    "tsconfck>typescript": "^6.0.0"
+    "@vue/tsconfig>typescript": "^6.0.0"
 
 allowBuilds:
+  "@apollo/protobufjs": true
+  "@scarf/scarf": true
   prisma: true
+
+supportedArchitectures:
+  os:
+    - current
+    - linux
+  cpu:
+    - current
+    - x64
+
+overrides:
+  "vue": "rc"
+  "@vue/compiler-core": "rc"
+  "@vue/compiler-dom": "rc"
+  "@vue/compiler-sfc": "rc"
+  "@vue/compiler-ssr": "rc"
+  "@vue/compiler-vapor": "rc"
+  "@vue/reactivity": "rc"
+  "@vue/runtime-core": "rc"
+  "@vue/runtime-dom": "rc"
+  "@vue/runtime-vapor": "rc"
+  "@vue/server-renderer": "rc"
+  "@vue/shared": "rc"
+  "@vue/compat": "rc"
+  "typescript": "npm:typescript-native-bridge@latest"
