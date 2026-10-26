@@ -1,4 +1,3 @@
-import type { PollStatus } from '#/types/poll.types.js';
 import {
   Field,
   GraphQLISODateTime,
@@ -19,7 +18,7 @@ export class ReadPollResultsDto {
 
   @Field()
   @IsString()
-  status: PollStatus;
+  status: string;
 
   @Field(() => Int)
   @IsString()
