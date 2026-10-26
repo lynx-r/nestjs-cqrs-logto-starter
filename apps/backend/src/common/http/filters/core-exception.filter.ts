@@ -1,7 +1,4 @@
 import { ModuleNames } from '#/app/constants.js';
-import { DomainException } from '#/app/domain/common/errors/domain.exception.js';
-import { EnvConfigService } from '#/app/infrastructure/config/env-config.service.js';
-import { NodeEnv } from '#/app/infrastructure/config/env.types.js';
 import {
   ArgumentsHost,
   Catch,
@@ -13,6 +10,9 @@ import {
 import type { GqlContextType } from '@nestjs/graphql';
 import type { Request, Response } from 'express';
 import { GraphQLError } from 'graphql';
+import { EnvConfigService } from '../../config/env-config.service.js';
+import { NodeEnv } from '../../config/env.types.js';
+import { DomainException } from '../../errors/domain.exception.js';
 import {
   ErrorResponseBody,
   HttpExceptionResponseBody,

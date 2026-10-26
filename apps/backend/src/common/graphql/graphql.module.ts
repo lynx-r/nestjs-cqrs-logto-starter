@@ -1,11 +1,11 @@
-import { EnvConfigModule } from '#/app/infrastructure/config/env-config.module.js';
-import { EnvConfigService } from '#/app/infrastructure/config/env-config.service.js';
-import { ErrorResponseBody } from '#/app/presentation/http/common/filters/core-exception.type.js';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import type { Request, Response } from 'express';
 import type { GraphQLFormattedError } from 'graphql';
+import { EnvConfigModule } from '../config/env-config.module.js';
+import { EnvConfigService } from '../config/env-config.service.js';
+import { ErrorResponseBody } from '../http/filters/core-exception.type.js';
 
 @Module({
   imports: [

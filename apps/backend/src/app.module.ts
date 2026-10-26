@@ -3,11 +3,11 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
-import { EnvConfigModule } from './infrastructure/config/env-config.module.js';
-import { EnvConfigService } from './infrastructure/config/env-config.service.js';
-import { NodeEnv } from './infrastructure/config/env.types.js';
-import { PollsModule } from './polls/polls.module.js';
-import { GraphqlPresentationModule } from './presentation/graphql/graphql.module.js';
+import { EnvConfigModule } from './common/config/env-config.module.js';
+import { EnvConfigService } from './common/config/env-config.service.js';
+import { NodeEnv } from './common/config/env.types.js';
+import { GraphqlPresentationModule } from './common/graphql/graphql.module.js';
+import { PollsModule } from './modules/polls/polls.module.js';
 
 // export const { ObserveModule, ObserveInstrument } = createObserveModule();
 

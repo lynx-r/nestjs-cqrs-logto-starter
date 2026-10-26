@@ -23,7 +23,7 @@
     ],
     "paths": {
       "#/polls/*": [
-        "./src/polls/*"
+        "./src/modules/polls/*"
       ],
       "#/types/*": [
         "./src/types/*"

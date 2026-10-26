@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "type": "module",
   "imports": {
-    "#/polls/*": "./dist/polls/*",
+    "#/polls/*": "./dist/modules/polls/*",
     "#/types/*": "./dist/types/*",
     "#/app/*": "./dist/*"
   },

@@ -10,9 +10,9 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { json } from 'express';
 import { AppModule } from './app.module.js';
-import { EnvConfigService } from './infrastructure/config/env-config.service.js';
-import { NodeEnv } from './infrastructure/config/env.types.js';
-import { CoreExceptionFilter } from './presentation/http/common/filters/core-exception.filter.js';
+import { EnvConfigService } from './common/config/env-config.service.js';
+import { NodeEnv } from './common/config/env.types.js';
+import { CoreExceptionFilter } from './common/http/filters/core-exception.filter.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(
