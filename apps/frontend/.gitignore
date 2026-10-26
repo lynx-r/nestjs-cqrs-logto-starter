@@ -39,3 +39,8 @@ __screenshots__/
 *.timestamp-*-*.mjs
 
 !.vscode/settings.json
+
+# Local env files
+.env
+.env.*
+!.env.example

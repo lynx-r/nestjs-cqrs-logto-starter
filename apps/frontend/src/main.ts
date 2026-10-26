@@ -1,14 +1,18 @@
-import './assets/main.css'
+import "./assets/main.css";
 
-import { createApp } from 'vue'
-import { createPinia } from 'pinia'
+import { createPinia } from "pinia";
+import { createApp } from "vue";
 
-import App from './App.vue'
-import router from './router'
+import { createLogto } from "@logto/vue";
+import App from "./App.vue";
+import { APP_CONFIG } from "./config.ts";
+import router from "./router";
 
-const app = createApp(App)
+const app = createApp(App);
 
-app.use(createPinia())
-app.use(router)
+app.use(createLogto, APP_CONFIG.logto);
 
-app.mount('#app')
+app.use(createPinia());
+app.use(router);
+
+app.mount("#app");
