@@ -25,6 +25,12 @@
       "#/polls/*": [
         "./src/modules/polls/*"
       ],
+      "#/config/*": [
+        "./src/config/*"
+      ],
+      "#/common/*": [
+        "./src/common/*"
+      ],
       "#/types/*": [
         "./src/types/*"
       ],

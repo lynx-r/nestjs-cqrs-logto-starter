@@ -1,4 +1,4 @@
-import { ModuleNames } from '#/app/constants.js';
+import { ModuleNames } from '#/config/constants/index.js';
 
 /**
  * HTTP exception response body from NestJS native HttpException.

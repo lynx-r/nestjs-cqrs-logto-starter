@@ -1,8 +1,8 @@
+import { PollEntity } from '#/polls/infrastructure/database/entities/poll.entity.js';
 import { PollId } from '#/types/poll.types.js';
-import { Poll } from '../models/poll.aggregate.js';
-import { Vote } from '../models/vote.value-object.js';
+import { VoteVO } from '../models/vote.value-object.js';
 
 export abstract class PollRepository {
-  abstract findById(id: PollId): Promise<Poll | null>;
-  abstract saveVote(vote: Vote): Promise<void>;
+  abstract findById(id: PollId): Promise<PollEntity | null>;
+  abstract saveVote(vote: VoteVO): Promise<void>;
 }

@@ -1,21 +1,25 @@
-import { User, UserId } from '#/types/author.types.js';
+import { UserId } from '#/types/user.types.js';
 import { BadRequestException } from '@nestjs/common';
 
-import { OptionId, PollId, PollStatus, VoteId } from '#/types/poll.types.js';
+import { PollOptionEntity } from '#/polls/infrastructure/database/entities/poll-option.entity.js';
+import { VoteEntity } from '#/polls/infrastructure/database/entities/vote.entity.js';
+import { VoteMapper } from '#/polls/infrastructure/database/mappers/vote.mapper.js';
+import { PollStatus } from '#/types/poll.enums.js';
+import { OptionId, PollId, VoteId } from '#/types/poll.types.js';
 import { AggregateRoot } from '@nestjs/cqrs';
-import { VoteCastEvent } from '../events/vote-cast.event.js';
-import { PollOption } from './poll-option.value-object.js';
-import { Vote } from './vote.value-object.js';
+import { VoteCastEvent } from '../../application/events/impl/vote-cast.event.js';
+import { PollOptionVO } from './poll-option.value-object.js';
+import { VoteVO } from './vote.value-object.js';
 
-export class Poll extends AggregateRoot {
+export class PollAggregate extends AggregateRoot {
   constructor(
-    public readonly id: PollId,
-    public readonly question: string,
+    readonly id: PollId,
+    readonly question: string,
     private status: PollStatus,
-    public readonly options: PollOption[],
-    public readonly author: User,
-    public readonly expiresAt: Date,
-    private readonly votes: Map<string, Vote> = new Map(),
+    readonly options: PollOptionVO[],
+    readonly authorId: UserId,
+    readonly expiresAt: Date,
+    private readonly votes: Map<UserId, VoteVO> = new Map(),
   ) {
     super();
   }
@@ -24,10 +28,10 @@ export class Poll extends AggregateRoot {
   static create(
     id: PollId,
     question: string,
-    options: PollOption[],
-    author: User,
+    options: PollOptionVO[],
+    authorId: UserId,
     expiresAt: Date,
-  ): Poll {
+  ): PollAggregate {
     if (!question || question.trim().length < 5) {
       throw new BadRequestException('Вопрос слишком короткий');
     }
@@ -42,11 +46,48 @@ export class Poll extends AggregateRoot {
       );
     }
 
-    return new Poll(id, question, 'open', options, author, expiresAt);
+    return new PollAggregate(
+      id,
+      question,
+      PollStatus.OPEN,
+      options,
+      authorId,
+      expiresAt,
+    );
+  }
+
+  /**
+   * Восстанавливает существующий агрегат из состояния базы данных.
+   * Этот метод вызывается репозиторием и НЕ содержит валидаций,
+   * так как данные в БД уже считаются валидными.
+   */
+  static reconstruct(
+    id: string,
+    question: string,
+    options: PollOptionEntity[],
+    status: PollStatus,
+    authorId: UserId,
+    expiresAt: Date,
+    votesList: VoteEntity[] = [],
+  ): PollAggregate {
+    const votesMap = new Map<string, VoteVO>();
+    votesList.forEach((vote) =>
+      votesMap.set(vote.userId, VoteMapper.toDomain(vote)),
+    );
+
+    return new PollAggregate(
+      id,
+      question,
+      status,
+      options,
+      authorId,
+      expiresAt,
+      votesMap,
+    );
   }
 
   // Бизнес-метод (Команда): Оставить голос
-  public castVote(voteId: VoteId, userId: UserId, optionId: OptionId): Vote {
+  castVote(voteId: VoteId, userId: UserId, optionId: OptionId): VoteVO {
     // Инвариант 1: Опрос должен быть открыт
     if (this.status === 'closed' || this.isExpired()) {
       throw new BadRequestException('Голосование в этом опросе уже завершено');
@@ -63,7 +104,7 @@ export class Poll extends AggregateRoot {
       throw new BadRequestException('Вы уже проголосовали в этом опросе');
     }
 
-    const newVote = new Vote(voteId, userId, this.id, optionId, new Date());
+    const newVote = new VoteVO(voteId, userId, this.id, optionId, new Date());
     this.votes.set(userId, newVote);
 
     this.apply(
@@ -80,15 +121,19 @@ export class Poll extends AggregateRoot {
   }
 
   // Бизнес-метод (Команда): Принудительно закрыть опрос автором
-  public close(): void {
-    this.status = 'closed';
+  close(): void {
+    this.status = PollStatus.CLOSED;
   }
 
-  public getStatus(): PollStatus {
+  getStatus(): PollStatus {
     if (this.isExpired()) {
-      return 'closed';
+      return PollStatus.CLOSED;
     }
     return this.status;
+  }
+
+  getVotes() {
+    return this.votes;
   }
 
   private isExpired(): boolean {

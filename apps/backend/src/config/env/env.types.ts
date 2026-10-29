@@ -9,6 +9,7 @@ export type DatabaseConfig = {
   name: string;
   username: string;
   password: string;
-  port: string;
+  port: number;
   host: string;
+  synchronize: boolean;
 };

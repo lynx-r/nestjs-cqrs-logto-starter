@@ -1,7 +1,7 @@
-import { UserId } from '#/types/author.types.js';
 import { OptionId, PollId, VoteId } from '#/types/poll.types.js';
+import { UserId } from '#/types/user.types.js';
 
-export class Vote {
+export class VoteVO {
   constructor(
     public readonly id: VoteId,
     public readonly userId: UserId,

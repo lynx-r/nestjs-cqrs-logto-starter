@@ -1,4 +1,4 @@
-import { ModuleNames } from '#/app/constants.js';
+import { ModuleNames } from '#/config/constants/index.js';
 
 export interface DomainErrorDescriptor {
   message: string;

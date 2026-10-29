@@ -1,5 +1,5 @@
-import { UserId } from '#/types/author.types.js';
 import { OptionId, PollId, VoteId } from '#/types/poll.types.js';
+import { UserId } from '#/types/user.types.js';
 
 export class VoteCastEvent {
   constructor(

@@ -1,5 +1,11 @@
 import { Transform } from 'class-transformer';
-import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { NodeEnv } from './env.types.js';
 
 export class EnvSchema {
@@ -39,6 +45,9 @@ export class EnvSchema {
 
   @IsString()
   DATABASE_HOST: string;
+
+  @IsBoolean()
+  DATABASE_SYNCHRONIZE: boolean;
 
   @IsEnum(NodeEnv)
   NODE_ENV: NodeEnv;

@@ -1,7 +1,7 @@
+import { PollReadRepository } from '#/polls/domain/repositories/poll-read.repository.js';
 import { NotFoundException } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { PollReadRepository } from '../../../domain/repositories/poll-read.repository.js';
-import { PollResultsDto } from '../dto/poll-details-view.dto.js';
+import { PollResultsDto } from '../dto/poll-results.dto.js';
 import { GetPollResultsQuery } from '../impl/get-poll-results.query.js';
 
 @QueryHandler(GetPollResultsQuery)

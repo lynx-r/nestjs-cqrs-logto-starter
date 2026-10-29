@@ -1,20 +1,20 @@
-import { Poll } from '#/polls/domain/models/poll.aggregate.js';
-import { Vote } from '#/polls/domain/models/vote.value-object.js';
+import { VoteVO } from '#/polls/domain/models/vote.value-object.js';
 import { PollRepository } from '#/polls/domain/repositories/poll.repository.js';
 import { OptionId, PollId } from '#/types/poll.types.js';
 import { Injectable } from '@nestjs/common';
+import { PollEntity } from '../../entities/poll.entity.js';
 import { InMemoryDataStore } from './in-memory-data.store.js';
 
 @Injectable()
 export class InMemoryPollRepository implements PollRepository {
   constructor(private readonly store: InMemoryDataStore) {}
 
-  async findById(id: string): Promise<Poll | null> {
+  async findById(id: string): Promise<PollEntity | null> {
     const poll = this.store.writePolls.get(id);
     return poll || null;
   }
 
-  async saveVote(vote: Vote): Promise<void> {
+  async saveVote(vote: VoteVO): Promise<void> {
     // Сохраняем голос в "таблицу" голосов на стороне записи
     this.store.writeVotes.push(vote);
   }

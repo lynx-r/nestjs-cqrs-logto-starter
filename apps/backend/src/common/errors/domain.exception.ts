@@ -1,4 +1,4 @@
-import { ModuleNames } from '#/app/constants.js';
+import { ModuleNames } from '#/config/constants/index.js';
 import { DomainErrorDescriptor } from './domain-error.interface.js';
 
 export class DomainException extends Error {

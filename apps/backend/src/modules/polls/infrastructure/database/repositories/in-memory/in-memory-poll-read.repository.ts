@@ -1,4 +1,4 @@
-import { PollResultsDto } from '#/polls/application/queries/dto/poll-details-view.dto.js';
+import { PollResultsDto } from '#/polls/application/queries/dto/poll-results.dto.js';
 import { PollReadRepository } from '#/polls/domain/repositories/poll-read.repository.js';
 import { Injectable } from '@nestjs/common';
 import { InMemoryDataStore } from './in-memory-data.store.js';

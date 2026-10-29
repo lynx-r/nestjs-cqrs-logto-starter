@@ -1,5 +1,5 @@
 import { CastVoteCommand } from '#/polls/application/commands/impl/cast-vote.command.js';
-import { PollResultsDto } from '#/polls/application/queries/dto/poll-details-view.dto.js';
+import { PollResultsDto } from '#/polls/application/queries/dto/poll-results.dto.js';
 import { GetPollResultsQuery } from '#/polls/application/queries/impl/get-poll-results.query.js';
 import {
   Body,

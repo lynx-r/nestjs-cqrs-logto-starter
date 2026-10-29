@@ -1,6 +1,5 @@
-// TODO: why use that folder struct?
-
-import { OptionId, PollId, PollStatus } from '#/types/poll.types.js';
+import { PollStatus } from '#/types/poll.enums.js';
+import { OptionId, PollId } from '#/types/poll.types.js';
 
 export interface PollResultsDto {
   id: PollId;

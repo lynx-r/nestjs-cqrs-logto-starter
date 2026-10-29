@@ -1,6 +1,6 @@
-import { VoteCastEvent } from '#/polls/domain/events/vote-cast.event.js';
+import { VoteCastEvent } from '#/polls/application/events/impl/vote-cast.event.js';
 import { PollRepository } from '#/polls/domain/repositories/poll.repository.js';
-import { InMemoryPollRepository } from '#/polls/infrastructure/repositories/in-memory/in-memory-poll.repository.js';
+import { InMemoryPollRepository } from '#/polls/infrastructure/database/repositories/in-memory/in-memory-poll.repository.js';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 
 @EventsHandler(VoteCastEvent)

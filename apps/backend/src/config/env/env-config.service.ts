@@ -62,8 +62,11 @@ export class EnvConfigService {
       name: this.configService.get<string>('DATABASE_NAME') as string,
       username: this.configService.get<string>('DATABASE_USERNAME') as string,
       password: this.configService.get<string>('DATABASE_PASSWORD') as string,
-      port: this.configService.get<string>('DATABASE_PORT') as string,
+      port: +this.configService.get<number>('DATABASE_PORT', 5432),
       host: this.configService.get<string>('DATABASE_HOST') as string,
+      synchronize:
+        (this.configService.get<string>('DATABASE_SYNCHRONIZE') || 'false') ===
+        'true',
     };
   }
 

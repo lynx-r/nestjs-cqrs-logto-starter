@@ -9,10 +9,11 @@ import {
 import { NestFactory, Reflector } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { json } from 'express';
+import { ServerResponse } from 'http';
 import { AppModule } from './app.module.js';
-import { EnvConfigService } from './common/config/env-config.service.js';
-import { NodeEnv } from './common/config/env.types.js';
 import { CoreExceptionFilter } from './common/http/filters/core-exception.filter.js';
+import { EnvConfigService } from './config/env/env-config.service.js';
+import { NodeEnv } from './config/env/env.types.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(
@@ -148,13 +149,13 @@ function setupSwagger(app: INestApplication, configService: EnvConfigService) {
     },
   });
 
-  // app.use(
-  //   `/${configService.swaggerDocsPath}`,
-  //   (_req: Request, res: ServerResponse) => {
-  //     res.setHeader('Content-Type', 'application/json');
-  //     res.end(JSON.stringify(document));
-  //   },
-  // );
+  app.use(
+    `/${configService.swaggerDocsPath}`,
+    (_req: Request, res: ServerResponse) => {
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify(document));
+    },
+  );
 
   return document;
 }

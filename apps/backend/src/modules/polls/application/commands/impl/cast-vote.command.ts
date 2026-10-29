@@ -1,5 +1,5 @@
-import { UserId } from '#/types/author.types.js';
 import { OptionId, PollId } from '#/types/poll.types.js';
+import { UserId } from '#/types/user.types.js';
 import { Command } from '@nestjs/cqrs';
 
 export class CastVoteCommand extends Command<void> {

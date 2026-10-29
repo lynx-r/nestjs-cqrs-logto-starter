@@ -1,4 +1,4 @@
-import { PollResultsDto } from '#/polls/application/queries/dto/poll-details-view.dto.js';
+import { PollResultsDto } from '#/polls/application/queries/dto/poll-results.dto.js';
 import { GetPollResultsQuery } from '#/polls/application/queries/impl/get-poll-results.query.js';
 import type { PollId } from '#/types/poll.types.js';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';

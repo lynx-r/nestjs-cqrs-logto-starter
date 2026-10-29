@@ -1,18 +1,17 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-import { ThrottlerModule } from '@nestjs/throttler';
-import { AppController } from './app.controller.js';
-import { AppService } from './app.service.js';
-import { EnvConfigModule } from './common/config/env-config.module.js';
-import { EnvConfigService } from './common/config/env-config.service.js';
-import { NodeEnv } from './common/config/env.types.js';
-import { GraphqlPresentationModule } from './common/graphql/graphql.module.js';
+import { EnvConfigModule } from './config/env/env-config.module.js';
+import { GraphQLConfigModule } from './config/graphql/graphql-config.module.js';
+import { ThrottlerConfigModule } from './config/throttler/throttler-config.module.js';
+import { TypeOrmConfigModule } from './config/typeorm/typeorm-config.module.js';
+import { HealthModule } from './modules/health/health.module.js';
 import { PollsModule } from './modules/polls/polls.module.js';
 
 // export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
 @Module({
   imports: [
+    HealthModule,
     PollsModule,
     // Distributed tracing, auto-correlated logs, request/job metrics, error
     // telemetry, alarms, and more — out of the box. Sign up at https://observe.nestjs.com
@@ -21,24 +20,12 @@ import { PollsModule } from './modules/polls/polls.module.js';
     //   appSecret: 'YOUR_APP_SECRET',
     //   serviceId: 'nestjs-prisma-rest-graphql-cqrs',
     // }),
-    ThrottlerModule.forRootAsync({
-      inject: [EnvConfigService],
-      useFactory: (env: EnvConfigService) => ({
-        skipIf: () => env.nodeEnv === NodeEnv.Test,
-        throttlers: [
-          {
-            name: 'default',
-            ttl: env.throttleTtlMs,
-            limit: env.throttleLimit,
-          },
-        ],
-      }),
-    }),
+    TypeOrmConfigModule,
+    ThrottlerConfigModule,
     EnvConfigModule,
-    GraphqlPresentationModule,
+    GraphQLConfigModule,
+
     CqrsModule.forRoot(),
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}
