@@ -1,5 +1,6 @@
 import { fileURLToPath, URL } from "node:url";
 
+import { heyApiPlugin } from "@hey-api/vite-plugin";
 import vue from "@vitejs/plugin-vue";
 import { defineConfig, loadEnv } from "vite";
 import vueDevTools from "vite-plugin-vue-devtools";
@@ -14,7 +15,7 @@ export default defineConfig(({ mode }) => {
   envSchema.parse(env); // Вызовет ошибку и остановит процесс, если что-то не так
 
   return {
-    plugins: [vue(), vueDevTools()],
+    plugins: [vue(), vueDevTools(), heyApiPlugin()],
     resolve: {
       alias: {
         "@": fileURLToPath(new URL("./src", import.meta.url)),

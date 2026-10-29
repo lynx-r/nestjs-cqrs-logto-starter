@@ -10,7 +10,7 @@ import router from "./router";
 
 const app = createApp(App);
 
-app.use(createLogto, APP_CONFIG.logto);
+app.use(createLogto, APP_CONFIG.logtoConfig);
 
 app.use(createPinia());
 app.use(router);

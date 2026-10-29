@@ -31,10 +31,13 @@ export const APP_CONFIG = {
   apiUrl: import.meta.env.VITE_API_URL,
   appTitle: import.meta.env.VITE_APP_TITLE,
 
-  logto: {
+  logtoConfig: {
     endpoint: import.meta.env.VITE_LOGTO_ENDPOINT,
     appId: import.meta.env.VITE_LOGTO_APP_ID,
   } satisfies LogtoConfig,
+
+  logtoApiResource: import.meta.env.VITE_LOGTO_API_RESOURCE,
+
   logtoCallback: import.meta.env.VITE_LOGTO_CALLBACK,
   logtoPostLogoutRedirect: import.meta.env.VITE_LOGTO_POST_LOGOUT_REDIRECT,
 
