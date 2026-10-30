@@ -5,7 +5,7 @@ import { VoteMapper } from './vote.mapper.js';
 
 export class PollMapper {
   static toDomain(ormEntity: PollEntity): PollAggregate {
-    return PollAggregate.reconstruct(
+    return PollAggregate.reconstitute(
       ormEntity.id,
       ormEntity.question,
       ormEntity.options,

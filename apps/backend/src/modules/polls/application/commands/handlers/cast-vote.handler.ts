@@ -1,7 +1,6 @@
 import { PollRepository } from '#/polls/domain/repositories/poll.repository.js';
 import { NotFoundException } from '@nestjs/common';
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
-import { randomUUID } from 'crypto';
 import { CastVoteCommand } from '../impl/cast-vote.command.js';
 
 @CommandHandler(CastVoteCommand)
@@ -20,15 +19,12 @@ export class CastVoteHandler implements ICommandHandler<CastVoteCommand> {
       throw new NotFoundException(`Опрос с ID ${pollId} не найден`);
     }
 
-    // 2. Генерируем ID для нового голоса (можно доверить БД, но в DDD лучше делать в приложении)
-    const voteId = randomUUID();
-
     // 2. Связываем наш загруженный агрегат с контекстом событий NestJS
     const pollContext = this.publisher.mergeObjectContext(poll);
 
     // 3. Вызываем доменную логику. Если правила нарушены,
     // метод внутри poll.entity.ts сам выбросит ошибку (например, BadRequestException)
-    const newVote = pollContext.castVote(voteId, userId, optionId);
+    const newVote = pollContext.castVote(userId, optionId);
 
     // 4. Сохраняем изменения в базу данных записи (Write DB)
     await this.pollRepository.saveVote(newVote);

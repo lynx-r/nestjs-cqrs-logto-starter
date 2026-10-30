@@ -5,8 +5,9 @@ import { PollOptionEntity } from '#/polls/infrastructure/database/entities/poll-
 import { VoteEntity } from '#/polls/infrastructure/database/entities/vote.entity.js';
 import { VoteMapper } from '#/polls/infrastructure/database/mappers/vote.mapper.js';
 import { PollStatus } from '#/types/poll.enums.js';
-import { OptionId, PollId, VoteId } from '#/types/poll.types.js';
+import { OptionId, PollId } from '#/types/poll.types.js';
 import { AggregateRoot } from '@nestjs/cqrs';
+import { randomUUID } from 'crypto';
 import { VoteCastEvent } from '../../application/events/impl/vote-cast.event.js';
 import { PollOptionVO } from './poll-option.value-object.js';
 import { VoteVO } from './vote.value-object.js';
@@ -61,7 +62,7 @@ export class PollAggregate extends AggregateRoot {
    * Этот метод вызывается репозиторием и НЕ содержит валидаций,
    * так как данные в БД уже считаются валидными.
    */
-  static reconstruct(
+  static reconstitute(
     id: string,
     question: string,
     options: PollOptionEntity[],
@@ -87,7 +88,7 @@ export class PollAggregate extends AggregateRoot {
   }
 
   // Бизнес-метод (Команда): Оставить голос
-  castVote(voteId: VoteId, userId: UserId, optionId: OptionId): VoteVO {
+  castVote(userId: UserId, optionId: OptionId): VoteVO {
     // Инвариант 1: Опрос должен быть открыт
     if (this.status === 'closed' || this.isExpired()) {
       throw new BadRequestException('Голосование в этом опросе уже завершено');
@@ -103,6 +104,9 @@ export class PollAggregate extends AggregateRoot {
     if (this.votes.has(userId)) {
       throw new BadRequestException('Вы уже проголосовали в этом опросе');
     }
+
+    // Генерируем ID для нового голоса (можно доверить БД, но в DDD лучше делать в приложении)
+    const voteId = randomUUID();
 
     const newVote = new VoteVO(voteId, userId, this.id, optionId, new Date());
     this.votes.set(userId, newVote);

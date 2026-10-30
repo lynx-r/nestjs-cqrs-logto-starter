@@ -1,17 +1,21 @@
+import { PollAggregate } from '#/polls/domain/models/poll.aggregate.js';
 import { VoteVO } from '#/polls/domain/models/vote.value-object.js';
 import { PollRepository } from '#/polls/domain/repositories/poll.repository.js';
 import { OptionId, PollId } from '#/types/poll.types.js';
 import { Injectable } from '@nestjs/common';
-import { PollEntity } from '../../entities/poll.entity.js';
+import { PollMapper } from '../../mappers/poll.mapper.js';
 import { InMemoryDataStore } from './in-memory-data.store.js';
 
 @Injectable()
 export class InMemoryPollRepository implements PollRepository {
   constructor(private readonly store: InMemoryDataStore) {}
 
-  async findById(id: string): Promise<PollEntity | null> {
+  async findById(id: string): Promise<PollAggregate | null> {
     const poll = this.store.writePolls.get(id);
-    return poll || null;
+    if (!poll) {
+      return null;
+    }
+    return PollMapper.toDomain(poll);
   }
 
   async saveVote(vote: VoteVO): Promise<void> {
