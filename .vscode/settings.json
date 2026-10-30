@@ -1,0 +1,5 @@
+{
+  "ai-commit.OPENAI_API_KEY": "sk-dummy",
+  "ai-commit.OPENAI_BASE_URL": "http://127.0.0.1:1234/v1",
+  "ai-commit.OPENAI_MODEL": "qwen2.5-coder-7b-instruct-mlx"
+}
